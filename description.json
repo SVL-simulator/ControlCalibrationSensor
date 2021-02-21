@@ -1,7 +1,7 @@
 {
   "name": "Control Calibration Sensor",
   "accessType": "public",
-  "description": "Example of the sensor to calibrate control logic.",
+  "description": "This sensor outputs control calibration criteria collected by AD Stacks (Apollo, Autoware). It generates steering, throttle or brakes with gear commands between minimum and maximum of velocity during duration.\nSee {{DOCS_HOST}}/docs/python-api/#control-calibration for more details.",
   "licenseName": "LG Content",
   "copyright": "LG Electronics Inc.",
   "tags": [
