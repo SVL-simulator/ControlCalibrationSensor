@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 LG Electronics, Inc.
+ * Copyright (c) 2019-2021 LG Electronics, Inc.
  *
  * This software contains code licensed as described in LICENSE.
  *
@@ -52,11 +52,10 @@ namespace Simulator.Sensors
         }
 
         [SensorParameter]
-        public List<CriteriaState> states;
-        private SimulatorControls controls;
-        private IVehicleDynamics dynamics;
-        private VehicleController controller;
-        private VehicleActions actions;
+        public List<CriteriaState> States;
+        private SimulatorControls Controls;
+        private IVehicleDynamics Dynamics;
+        private VehicleActions Actions;
 
         public Stage stage = Stage.Init;
         private int? seq = 0;
@@ -77,20 +76,17 @@ namespace Simulator.Sensors
         public float AccelInput { get; private set; } = 0f;
         public float BrakeInput { get; private set; } = 0f;
         private Vector2 keyboardInput = Vector2.zero;
-
-        AgentController AgentController;
         
         public override SensorDistributionType DistributionType => SensorDistributionType.LowLoad;
 
         private void Start()
         {
-            AgentController = GetComponentInParent<AgentController>();
-            dynamics = GetComponentInParent<IVehicleDynamics>();
+            Dynamics = GetComponentInParent<IVehicleDynamics>();
         }
 
         private void Update()
         {
-            var currentSpeed = dynamics.RB.velocity.magnitude;
+            var currentSpeed = Dynamics.Velocity.magnitude;
 
             if (seq == null)
             {
@@ -104,30 +100,30 @@ namespace Simulator.Sensors
 
             if (firstRun && seq != null)
             {
-                state = states[seq.Value];
-                duration = states[seq.Value].duration;
+                state = States[seq.Value];
+                duration = States[seq.Value].duration;
 
                 state.throttle = state.throttle * 0.01f;
                 state.brakes = state.brakes * 0.01f;
                 state.steering = state.steering * 0.01f;
 
-                upperBound = states[seq.Value].max_velocity * 0.9f;
-                lowerBound = states[seq.Value].min_velocity * 1.1f;
-                maxVelocity = states[seq.Value].max_velocity;
-                minVelocity = states[seq.Value].min_velocity;
+                upperBound = States[seq.Value].max_velocity * 0.9f;
+                lowerBound = States[seq.Value].min_velocity * 1.1f;
+                maxVelocity = States[seq.Value].max_velocity;
+                minVelocity = States[seq.Value].min_velocity;
                 AccelInput = 0f;
                 SteerInput = 0f;
 
-                if (states[seq.Value].gear == "forward")
+                if (States[seq.Value].gear == "forward")
                 {
-                    whatToTest = (states[seq.Value].throttle > 0) ? WhatToTest.ForwardThrottle
-                        : (states[seq.Value].brakes > 0) ? WhatToTest.ForwardBrake : WhatToTest.None;
+                    whatToTest = (States[seq.Value].throttle > 0) ? WhatToTest.ForwardThrottle
+                        : (States[seq.Value].brakes > 0) ? WhatToTest.ForwardBrake : WhatToTest.None;
 
                 }
-                else if (states[seq.Value].gear == "reverse")
+                else if (States[seq.Value].gear == "reverse")
                 {
-                    whatToTest = (states[seq.Value].throttle > 0) ? WhatToTest.ReverseThrottle
-                        : (states[seq.Value].brakes > 0) ? WhatToTest.ReverseBrake : WhatToTest.None;
+                    whatToTest = (States[seq.Value].throttle > 0) ? WhatToTest.ReverseThrottle
+                        : (States[seq.Value].brakes > 0) ? WhatToTest.ReverseBrake : WhatToTest.None;
                 }
 
                 firstRun = false;
@@ -189,7 +185,7 @@ namespace Simulator.Sensors
                 }
                 else if (whatToTest == WhatToTest.ReverseThrottle || whatToTest == WhatToTest.ReverseBrake)
                 {
-                    if (dynamics.Reverse == true)
+                    if (Dynamics.Reverse == true)
                     {
                         if (whatToTest == WhatToTest.ReverseThrottle || whatToTest == WhatToTest.ReverseBrake)
                         {
@@ -246,7 +242,7 @@ namespace Simulator.Sensors
                     }
                     else
                     {
-                        dynamics.ShiftReverseAutoGearBox();
+                        Dynamics.ShiftReverseAutoGearBox();
                     }
                 }
             }
@@ -293,7 +289,7 @@ namespace Simulator.Sensors
                 {
                     stage = Stage.Init;
                     velocityState = VelocityState.Increasing;
-                    seq = (seq < states.Count - 1) ? seq+1 : null;
+                    seq = (seq < States.Count - 1) ? seq+1 : null;
                     firstRun = true;
                 }
             }
@@ -333,12 +329,12 @@ namespace Simulator.Sensors
 
             var graphData = new Dictionary<string, object>()
             {
-                {"Seq", seq.Value/states.Count},
+                {"Seq", seq.Value/States.Count},
                 {"Idx Apply", idxApply.Value},
                 {"Stage", stage.ToString()},
                 {"Elapsed Time", ElapsedTime},
                 {"Duration", duration},
-                {"Current Velocity", dynamics.RB.velocity.magnitude},
+                {"Current Velocity", Dynamics.Velocity.magnitude},
                 {"Max Velocity", state.max_velocity},
                 {"Min Velocity", state.min_velocity},
                 {"Upper Velocity", upperBound},
@@ -348,7 +344,7 @@ namespace Simulator.Sensors
                 {"Brakes", state.brakes},
                 {"Steer Input", SteerInput},
                 {"Steer", state.steering},
-                {"Gear", dynamics.CurrentGear},
+                {"Gear", Dynamics.CurrentGear},
                 {"State Gear", state.gear},
                 {"What To Test", whatToTest},
                 {"State Velocity", velocityState}
