@@ -77,11 +77,17 @@ namespace Simulator.Sensors
         public float BrakeInput { get; private set; } = 0f;
         private Vector2 keyboardInput = Vector2.zero;
         
-        public override SensorDistributionType DistributionType => SensorDistributionType.LowLoad;
+        public override SensorDistributionType DistributionType => SensorDistributionType.MainOrClient;
+        public override float PerformanceLoad { get; } = 0.05f;
 
-        private void Start()
+        protected override void Initialize()
         {
             Dynamics = GetComponentInParent<IVehicleDynamics>();
+        }
+
+        protected override void Deinitialize()
+        {
+            
         }
 
         private void Update()
